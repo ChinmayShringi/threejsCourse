@@ -28,10 +28,40 @@ const doorAmbientTexture = textureLoader.load(
   "/textures/door/ambientOcclusion.jpg"
 );
 const doorHeightTexture = textureLoader.load("/textures/door/height.jpg");
-const doorNOrmalTesture = textureLoader.load("/textures/door/normal.jpg");
+const doorNormalTexture = textureLoader.load("/textures/door/normal.jpg");
 const doorMetalnessTexture = textureLoader.load("/textures/door/metalness.jpg");
 const doorRoughnessTexture = textureLoader.load("/textures/door/roughness.jpg");
 
+const bricksColorTexture = textureLoader.load("/textures/bricks/color.jpg");
+const bricksAmbientTexture = textureLoader.load(
+  "/textures/bricks/ambientOcclusion.jpg"
+);
+const bricksNormalTexture = textureLoader.load("/textures/bricks/normal.jpg");
+const bricksRoughnessTexture = textureLoader.load(
+  "/textures/bricks/roughness.jpg"
+);
+
+const grassColorTexture = textureLoader.load("/textures/grass/color.jpg");
+const grassAmbientTexture = textureLoader.load(
+  "/textures/grass/ambientOcclusion.jpg"
+);
+const grassNormalTexture = textureLoader.load("/textures/grass/normal.jpg");
+const grassRoughnessTexture = textureLoader.load(
+  "/textures/grass/roughness.jpg"
+);
+grassColorTexture.repeat.set(8, 8);
+grassAmbientTexture.repeat.set(8, 8);
+grassNormalTexture.repeat.set(8, 8);
+grassRoughnessTexture.repeat.set(8, 8);
+grassColorTexture.wrapS = THREE.RepeatWrapping;
+grassAmbientTexture.wrapS = THREE.RepeatWrapping;
+grassNormalTexture.wrapS = THREE.RepeatWrapping;
+grassRoughnessTexture.wrapS = THREE.RepeatWrapping;
+
+grassColorTexture.wrapT = THREE.RepeatWrapping;
+grassAmbientTexture.wrapT = THREE.RepeatWrapping;
+grassNormalTexture.wrapT = THREE.RepeatWrapping;
+grassRoughnessTexture.wrapT = THREE.RepeatWrapping;
 /**
  * Sizes
  */
@@ -64,9 +94,19 @@ scene.add(house);
 // walls
 const walls = new THREE.Mesh(
   new THREE.BoxBufferGeometry(4, 2.5, 4),
-  new THREE.MeshStandardMaterial({ color: "#ac8e82" })
+  new THREE.MeshStandardMaterial({
+    map: bricksColorTexture,
+    aoMap: bricksAmbientTexture,
+    normalMap: bricksNormalTexture,
+    roughnessMap: bricksRoughnessTexture,
+  })
 );
 walls.position.y = 2.5 / 2;
+
+walls.geometry.setAttribute(
+  "uv2",
+  new THREE.Float32BufferAttribute(walls.geometry.attributes.uv.array, 2)
+);
 house.add(walls);
 
 // roof
@@ -81,12 +121,22 @@ house.add(roof);
 
 // door
 const door = new THREE.Mesh(
-  new THREE.PlaneBufferGeometry(2, 2),
+  new THREE.PlaneBufferGeometry(2.2, 2.2, 100, 100),
   new THREE.MeshStandardMaterial({
     map: doorColorTexture,
     alphaMap: doorAlpaTextture,
     transparent: true,
+    aoMap: doorAmbientTexture,
+    displacementMap: doorHeightTexture,
+    displacementScale: 0.1,
+    normalMap: doorNormalTexture,
+    metalnessMap: doorMetalnessTexture,
+    roughnessMap: doorRoughnessTexture,
   })
+);
+door.geometry.setAttribute(
+  "uv2",
+  new THREE.Float32BufferAttribute(door.geometry.attributes.uv.array, 2)
 );
 
 door.position.y = 1;
@@ -151,8 +201,18 @@ house.add(doorLight);
 
 const floor = new THREE.Mesh(
   new THREE.PlaneBufferGeometry(20, 20),
-  new THREE.MeshStandardMaterial({ color: "#a9c388" })
+  new THREE.MeshStandardMaterial({
+    map: grassColorTexture,
+    aoMap: grassAmbientTexture,
+    normalMap: grassNormalTexture,
+    roughnessMap: grassRoughnessTexture,
+  })
 );
+floor.geometry.setAttribute(
+  "uv2",
+  new THREE.Float32BufferAttribute(floor.geometry.attributes.uv.array, 2)
+);
+
 floor.rotation.x = -Math.PI * 0.5;
 floor.position.y = 0;
 scene.add(floor);
