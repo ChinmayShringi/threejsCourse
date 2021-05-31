@@ -15,10 +15,15 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 /**
- * SpotLight
+ * Lights
  */
-const ambient = new THREE.AmbientLight();
+// ambient
+const ambient = new THREE.AmbientLight("#b9d5ff", 0.12);
 scene.add(ambient);
+// directional
+const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.12);
+moonLight.position.set(4, 5, -2);
+scene.add(moonLight);
 
 /**
  * Object
@@ -109,8 +114,9 @@ for (let i = 0; i < 50; i++) {
   const x = Math.sin(angle) * radius;
   const z = Math.cos(angle) * radius;
   const grave = new THREE.Mesh(graveGeometry, graveMaterial);
-  grave.position.set(x, 0.4, z);
+  grave.position.set(x, 0.3, z);
   grave.rotation.y = (Math.random() - 0.5) * 0.5;
+  grave.rotation.z = (Math.random() - 0.5) * 0.4;
   graves.add(grave);
 }
 scene.add(graves);
