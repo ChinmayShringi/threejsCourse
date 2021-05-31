@@ -13,12 +13,23 @@ const scene = new THREE.Scene();
 /**
  * SpotLight
  */
+const spotLight = new THREE.SpotLight(
+  0x78ff00,
+  5, //intensity
+  18, //distance
+  Math.PI * 0.2, //angle
+  0.25,
+  -10
+);
+spotLight.position.set(0, 2, 3);
+scene.add(spotLight);
+scene.add(spotLight.target);
 
 /**
  * Object
  */
 const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 const mesh = new THREE.Mesh(geometry, material);
 mesh.position.set(0, 1, 0);
 scene.add(mesh);
@@ -51,7 +62,7 @@ window.addEventListener("resize", () => {
 
 const plane = new THREE.Mesh(
   new THREE.BoxGeometry(5, 0.2, 5),
-  new THREE.MeshBasicMaterial({ color: 0x444444 })
+  new THREE.MeshStandardMaterial({ color: 0x444444 })
 );
 scene.add(plane);
 
@@ -85,9 +96,14 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  * Animate
  */
 const clock = new THREE.Clock();
-
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+  // spotlight target move
+  //   spotLight.target.position.x = Math.random() * elapsedTime;
+  //   gsap.to(spotLight.target.position, 1, {
+  //     x: Math.random() + Math.PI * 0.1,
+  //     y: Math.random() + Math.PI * 0.1,
+  //   });
 
   // Update controls
   controls.update();
