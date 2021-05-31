@@ -21,7 +21,7 @@ const scene = new THREE.Scene();
 /**
  * Object
  */
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const material = new THREE.MeshNormalMaterial();
 
 const sphere = new THREE.Mesh(
   new THREE.SphereBufferGeometry(0.5, 16, 16),
