@@ -55,11 +55,66 @@ scene.add(house);
 
 // walls
 const walls = new THREE.Mesh(
-  new THREE.BoxBufferGeometry(1, 1, 1),
+  new THREE.BoxBufferGeometry(4, 2.5, 4),
   new THREE.MeshStandardMaterial({ color: "#ac8e82" })
 );
-
+walls.position.y = 2.5 / 2;
 house.add(walls);
+
+// roof
+const roof = new THREE.Mesh(
+  new THREE.ConeBufferGeometry(3.5, 1, 4),
+  new THREE.MeshStandardMaterial({ color: "#b35f45" })
+);
+roof.position.y = 2.5 + 1 / 2;
+roof.rotation.y = Math.PI / 4;
+
+house.add(roof);
+
+// door
+const door = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(2, 2),
+  new THREE.MeshStandardMaterial({})
+);
+
+door.position.y = 1;
+door.position.z = 2 + 0.01;
+
+house.add(door);
+
+// Bushes
+const bushGeometry = new THREE.SphereBufferGeometry(1, 16, 16);
+const bushMaterial = new THREE.MeshStandardMaterial({ color: "#89c854" });
+
+var scales = [0.5, 0.25, 0.15, 0.4];
+var cords = [0.8, 0.2, 2.2, 1.4, 0.1, 2.1, -1, 0.05, 2.6, -0.8, 0.1, 2.2];
+for (var i = 0; i < 5; i++) {
+  const bush = new THREE.Mesh(bushGeometry, bushMaterial);
+  bush.scale.set(scales[i], scales[i], scales[i]);
+  bush.position.set(cords[i * 3], cords[i * 3 + 1], cords[i * 3 + 2]);
+  house.add(bush);
+}
+/**
+ * Graves
+ */
+
+const graves = new THREE.Group();
+scene.add(graves);
+const graveGeometry = new THREE.BoxBufferGeometry(0.6, 0.8, 0.2);
+const graveMaterial = new THREE.MeshStandardMaterial({ color: "#b2b6b1" });
+
+for (let i = 0; i < 50; i++) {
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 4 + Math.random() * 6;
+  const x = Math.sin(angle) * radius;
+  const z = Math.cos(angle) * radius;
+  const grave = new THREE.Mesh(graveGeometry, graveMaterial);
+  grave.position.set(x, 0.4, z);
+  grave.rotation.y = (Math.random() - 0.5) * 0.5;
+  graves.add(grave);
+}
+scene.add(graves);
+
 /**
  * Plane
  */
