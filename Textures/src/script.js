@@ -10,7 +10,7 @@ import * as dat from "dat.gui";
 
 const textureLoader = new THREE.TextureLoader();
 const doorColorTexture = textureLoader.load("/textures/door/color.jpg");
-const matcapTexture = textureLoader.load("/textures/matcaps/1.png");
+const matcapTexture = textureLoader.load("/textures/matcaps/7.png");
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -21,7 +21,8 @@ const scene = new THREE.Scene();
 /**
  * Object
  */
-const material = new THREE.MeshNormalMaterial();
+const material = new THREE.MeshMatcapMaterial();
+material.matcap = matcapTexture;
 
 const sphere = new THREE.Mesh(
   new THREE.SphereBufferGeometry(0.5, 16, 16),
