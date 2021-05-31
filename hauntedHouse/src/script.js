@@ -14,9 +14,9 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
-/**
- * Object
- */
+// fog
+const fog = new THREE.Fog("#262837", 2, 15);
+scene.fog = fog;
 
 /**
  * Sizes
@@ -88,6 +88,7 @@ for (var i = 0; i < 5; i++) {
   bush.position.set(cords[i * 3], cords[i * 3 + 1], cords[i * 3 + 2]);
   house.add(bush);
 }
+
 /**
  * Graves
  */
@@ -125,6 +126,7 @@ scene.add(moonLight);
 const doorLight = new THREE.PointLight("#ff8d46", 1, 7);
 doorLight.position.set(0, 2.2, 2.7);
 house.add(doorLight);
+
 /**
  * Plane
  */
@@ -162,6 +164,7 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor("#262837");
 
 /**
  * Animate
