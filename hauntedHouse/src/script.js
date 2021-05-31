@@ -147,14 +147,14 @@ house.add(door);
 // Bushes
 const bushGeometry = new THREE.SphereBufferGeometry(1, 16, 16);
 const bushMaterial = new THREE.MeshStandardMaterial({ color: "#89c854" });
-
+var bush = [];
 var scales = [0.5, 0.25, 0.15, 0.4];
 var cords = [0.8, 0.2, 2.2, 1.4, 0.1, 2.1, -1, 0.05, 2.6, -0.8, 0.1, 2.2];
 for (var i = 0; i < 5; i++) {
-  const bush = new THREE.Mesh(bushGeometry, bushMaterial);
-  bush.scale.set(scales[i], scales[i], scales[i]);
-  bush.position.set(cords[i * 3], cords[i * 3 + 1], cords[i * 3 + 2]);
-  house.add(bush);
+  bush.push(new THREE.Mesh(bushGeometry, bushMaterial));
+  bush[i].scale.set(scales[i], scales[i], scales[i]);
+  bush[i].position.set(cords[i * 3], cords[i * 3 + 1], cords[i * 3 + 2]);
+  house.add(bush[i]);
 }
 
 /**
@@ -175,6 +175,7 @@ for (let i = 0; i < 50; i++) {
   grave.position.set(x, 0.3, z);
   grave.rotation.y = (Math.random() - 0.5) * 0.5;
   grave.rotation.z = (Math.random() - 0.5) * 0.4;
+  grave.castShadow = true;
   graves.add(grave);
 }
 scene.add(graves);
@@ -185,6 +186,7 @@ scene.add(graves);
 // ambient
 const ambient = new THREE.AmbientLight("#b9d5ff", 0.12);
 scene.add(ambient);
+
 // directional
 const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.12);
 moonLight.position.set(4, 5, -2);
@@ -194,6 +196,16 @@ scene.add(moonLight);
 const doorLight = new THREE.PointLight("#ff8d46", 1, 7);
 doorLight.position.set(0, 2.2, 2.7);
 house.add(doorLight);
+
+/**
+ * Ghost
+ */
+const ghost1 = new THREE.PointLight("#ffffff", 2, 3);
+scene.add(ghost1);
+const ghost2 = new THREE.PointLight("#ffffff", 2, 3);
+scene.add(ghost2);
+const ghost3 = new THREE.PointLight("#ffffff", 2, 3);
+scene.add(ghost3);
 
 /**
  * Plane
@@ -212,7 +224,7 @@ floor.geometry.setAttribute(
   "uv2",
   new THREE.Float32BufferAttribute(floor.geometry.attributes.uv.array, 2)
 );
-
+floor.receiveShadow = true;
 floor.rotation.x = -Math.PI * 0.5;
 floor.position.y = 0;
 scene.add(floor);
@@ -245,6 +257,21 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor("#262837");
 
 /**
+ * Shadow
+ */
+renderer.shadowMap.enabled = true;
+moonLight.castShadow = true;
+doorLight.castShadow = true;
+ghost1.castShadow = true;
+ghost2.castShadow = true;
+ghost3.castShadow = true;
+
+walls.castShadow = true;
+bush.forEach((el) => {
+  el.castShadow = true;
+});
+
+/**
  * Animate
  */
 const clock = new THREE.Clock();
@@ -254,6 +281,23 @@ const tick = () => {
   // Update controls
   controls.update();
 
+  // Update ghost
+  const ghost1Angle = elapsedTime * 0.5;
+  ghost1.position.x = Math.cos(ghost1Angle) * 4;
+  ghost1.position.z = Math.sin(ghost1Angle) * 4;
+  ghost1.position.y = Math.cos(ghost1Angle * 3);
+
+  const ghost2Angle = -elapsedTime * 0.32;
+  ghost2.position.x = Math.cos(ghost2Angle) * 5;
+  ghost2.position.z = Math.sin(ghost2Angle) * 5;
+  ghost2.position.y = Math.sin(ghost2Angle * 2) + Math.sin(ghost2Angle * 2.5);
+
+  const ghost3Angle = -elapsedTime * 0.18;
+  ghost3.position.x =
+    Math.cos(ghost3Angle) * (7 * Math.sin(elapsedTime * 0.32));
+  ghost3.position.z =
+    Math.sin(ghost3Angle) * (7 * Math.sin(elapsedTime * 0.32));
+  ghost3.position.y = Math.sin(ghost3Angle * 5) + Math.sin(ghost3Angle * 2.5);
   // Render
   renderer.render(scene, camera);
 
