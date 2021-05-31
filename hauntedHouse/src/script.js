@@ -224,7 +224,6 @@ floor.geometry.setAttribute(
   "uv2",
   new THREE.Float32BufferAttribute(floor.geometry.attributes.uv.array, 2)
 );
-floor.receiveShadow = true;
 floor.rotation.x = -Math.PI * 0.5;
 floor.position.y = 0;
 scene.add(floor);
@@ -259,17 +258,35 @@ renderer.setClearColor("#262837");
 /**
  * Shadow
  */
+
 renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 moonLight.castShadow = true;
 doorLight.castShadow = true;
 ghost1.castShadow = true;
 ghost2.castShadow = true;
 ghost3.castShadow = true;
-
+floor.receiveShadow = true;
 walls.castShadow = true;
 bush.forEach((el) => {
   el.castShadow = true;
 });
+
+doorLight.shadow.mapSize.width = 256;
+doorLight.shadow.mapSize.height = 256;
+doorLight.shadow.camera.far = 7;
+
+ghost1.shadow.mapSize.width = 256;
+ghost1.shadow.mapSize.height = 256;
+ghost1.shadow.camera.far = 7;
+
+ghost2.shadow.mapSize.width = 256;
+ghost2.shadow.mapSize.height = 256;
+ghost2.shadow.camera.far = 7;
+
+ghost3.shadow.mapSize.width = 256;
+ghost3.shadow.mapSize.height = 256;
+ghost3.shadow.camera.far = 7;
 
 /**
  * Animate
