@@ -4,6 +4,14 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
 
+/**
+ * Textures
+ */
+
+const textureLoader = new THREE.TextureLoader();
+const doorColorTexture = textureLoader.load("/textures/door/color.jpg");
+const matcapTexture = textureLoader.load("/textures/matcaps/1.png");
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
