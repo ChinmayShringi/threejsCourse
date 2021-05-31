@@ -15,17 +15,6 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 /**
- * Lights
- */
-// ambient
-const ambient = new THREE.AmbientLight("#b9d5ff", 0.12);
-scene.add(ambient);
-// directional
-const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.12);
-moonLight.position.set(4, 5, -2);
-scene.add(moonLight);
-
-/**
  * Object
  */
 
@@ -121,6 +110,21 @@ for (let i = 0; i < 50; i++) {
 }
 scene.add(graves);
 
+/**
+ * Lights
+ */
+// ambient
+const ambient = new THREE.AmbientLight("#b9d5ff", 0.12);
+scene.add(ambient);
+// directional
+const moonLight = new THREE.DirectionalLight("#b9d5ff", 0.12);
+moonLight.position.set(4, 5, -2);
+scene.add(moonLight);
+
+// doorlight
+const doorLight = new THREE.PointLight("#ff8d46", 1, 7);
+doorLight.position.set(0, 2.2, 2.7);
+house.add(doorLight);
 /**
  * Plane
  */
