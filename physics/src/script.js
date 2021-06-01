@@ -34,27 +34,30 @@ const world = new CANNON.World();
 world.gravity.set(0, -9.82, 0);
 
 // Material
-const concreteMaterial = new CANNON.Material("concrete");
-const plasticMaterial = new CANNON.Material("plastic");
+const defaultMaterial = new CANNON.Material("default");
 
-const concPlasticContactMaterial = new CANNON.ContactMaterial(
-  concreteMaterial,
-  plasticMaterial,
+const defaultContactMaterial = new CANNON.ContactMaterial(
+  defaultMaterial,
+  defaultMaterial,
   {
     friction: 0.1,
     restitution: 0.7,
   }
 );
-world.addContactMaterial(concPlasticContactMaterial);
-
+world.addContactMaterial(defaultContactMaterial);
+world.defaultContactMaterial = defaultMaterial;
 // Sphere
 const sphereShape = new CANNON.Sphere(0.5);
 const sphereBody = new CANNON.Body({
   mass: 1,
   position: new CANNON.Vec3(0, 3, 0),
   shape: sphereShape,
-  material: plasticMaterial,
+  material: defaultMaterial,
 });
+sphereBody.applyLocalForce(
+  new CANNON.Vec3(150, 0, 0),
+  new CANNON.Vec3(0, 0, 0)
+);
 world.addBody(sphereBody);
 
 // floor
@@ -62,7 +65,7 @@ const floorShape = new CANNON.Plane();
 const floorBody = new CANNON.Body();
 floorBody.mass = 0;
 floorBody.addShape(floorShape);
-floorBody.material = concreteMaterial;
+floorBody.material = defaultMaterial;
 floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
 world.addBody(floorBody);
 
@@ -176,7 +179,10 @@ const tick = () => {
   controls.update();
 
   // Update Physics world
+  sphereBody.applyForce(new CANNON.Vec3(-0.5, 0, 0), sphereBody.position);
+
   world.step(1 / 60, deltaTime, 3);
+
   sphere.position.copy(sphereBody.position);
 
   // Render
