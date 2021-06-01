@@ -13,9 +13,17 @@ const scene = new THREE.Scene();
 /**
  * Particles
  */
-const geometry = new THREE.SphereBufferGeometry(1, 32, 32);
+const geometry = new THREE.BufferGeometry();
+const count = 5000;
+const positions = new Float32Array(count * 3);
+
+for (let i = 0; i < count; i++) {
+  positions[i] = (Math.random() - 0.5) * 10;
+}
+
+geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 const material = new THREE.PointsMaterial();
-material.size = 0.02;
+material.size = 0.1;
 material.sizeAttenuation = true;
 
 const mesh = new THREE.Points(geometry, material);
