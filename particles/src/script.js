@@ -11,6 +11,12 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 /**
+ * Textures
+ */
+const textureLoader = new THREE.TextureLoader();
+const particleTexture = textureLoader.load("/textures/particles/2.png");
+
+/**
  * Particles
  */
 const geometry = new THREE.BufferGeometry();
@@ -25,6 +31,11 @@ geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 const material = new THREE.PointsMaterial();
 material.size = 0.1;
 material.sizeAttenuation = true;
+material.alphaMap = particleTexture;
+// material.alphaTest = 0.001;
+material.depthWrite = false;
+material.transparent = true;
+material.color.set("#FF88cc");
 
 const mesh = new THREE.Points(geometry, material);
 scene.add(mesh);
