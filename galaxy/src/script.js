@@ -14,13 +14,15 @@ const scene = new THREE.Scene();
  * Galaxy
  */
 const parameters = {};
-parameters.count = 1000;
+parameters.count = 10000;
 parameters.size = 0.02;
 parameters.radius = 5;
 parameters.branches = 3;
 parameters.spin = 1;
 parameters.randomness = 0.2;
 parameters.randomnessPower = 3;
+parameters.insideColor = "#ff6030";
+parameters.outsideColor = "#3060ff";
 
 let geometry = null;
 let material = null;
@@ -36,10 +38,14 @@ const generateGalaxy = () => {
 
   geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(parameters.count * 3);
+  const colors = new Float32Array(parameters.count * 3);
+
+  const colorsInside = new THREE.Color(parameters.insideColor);
+  const colorsOutside = new THREE.Color(parameters.outsideColor);
 
   for (let i = 0; i < parameters.count; i++) {
     const i3 = i * 3;
-
+    // positions
     const radius = Math.random() * parameters.radius;
     const spinAngle = radius * parameters.spin;
     const branchAngle =
@@ -54,8 +60,16 @@ const generateGalaxy = () => {
     positions[i3 + 0] = Math.cos(branchAngle + spinAngle) * radius + randomX;
     positions[i3 + 1] = randomY;
     positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+    // colors
+    const mixedColor = colorsInside.clone();
+    mixedColor.lerp(colorsOutside, radius / parameters.radius);
+    colors[i3] = mixedColor.r;
+    colors[i3 + 1] = mixedColor.g;
+    colors[i3 + 2] = mixedColor.b;
   }
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   /**
    * Material
@@ -65,6 +79,7 @@ const generateGalaxy = () => {
     sizeAttenuation: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
+    vertexColors: true,
   });
 
   /**
@@ -84,7 +99,7 @@ const gui = new dat.GUI();
 gui
   .add(parameters, "count")
   .min(100)
-  .max(1000)
+  .max(100000)
   .step(100)
   .onFinishChange(generateGalaxy);
 gui
@@ -123,6 +138,8 @@ gui
   .max(10)
   .step(0.1)
   .onFinishChange(generateGalaxy);
+gui.addColor(parameters, "insideColor").onFinishChange(generateGalaxy);
+gui.addColor(parameters, "outsideColor").onFinishChange(generateGalaxy);
 
 /**
  * Sizes
