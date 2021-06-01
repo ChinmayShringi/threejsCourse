@@ -17,7 +17,15 @@ debugObject.createSphere = () => {
     z: (Math.random() - 0.5) * 3,
   });
 };
+debugObject.createBox = () => {
+  createBox(Math.random(), Math.random(), Math.random(), {
+    x: (Math.random() - 0.5) * 0.2,
+    y: 3,
+    z: (Math.random() - 0.5) * 0.2,
+  });
+};
 gui.add(debugObject, "createSphere");
+gui.add(debugObject, "createBox");
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -166,7 +174,7 @@ const sphereMaterial = new THREE.MeshStandardMaterial({
 const createSphere = (radius, position) => {
   // three mesh
   const mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-  mesh.scale.set(radius);
+  //   mesh.scale.set(radius);
   mesh.castShadow = true;
   mesh.position.copy(position);
   scene.add(mesh);
@@ -189,6 +197,43 @@ const createSphere = (radius, position) => {
 };
 createSphere(0.5, { x: 0, y: 3, z: 0 });
 
+// box
+const boxGeometry = new THREE.BoxBufferGeometry(1, 20, 20);
+// const boxMaterial = sphereMaterial;
+
+const boxMaterial = new THREE.MeshStandardMaterial({
+  metalness: 0.3,
+  roughness: 0.4,
+  envMap: envMapTexture,
+});
+const createBox = (width, height, depth, position) => {
+  // three mesh
+  const mesh = new THREE.Mesh(boxGeometry, boxMaterial);
+  mesh.scale.set(width, height, depth);
+  mesh.castShadow = true;
+  console.log(position);
+  mesh.position.copy(position);
+  scene.add(mesh);
+
+  //   CANNON body
+  const shape = new CANNON.Box(
+    new CANNON.Vec3(width / 2, height / 2, depth / 2)
+  );
+  const body = new CANNON.Body({
+    mass: 1,
+    position: new CANNON.Vec3(0, 3, 0),
+    shape,
+    material: defaultMaterial,
+  });
+  body.position.copy(position);
+  world.addBody(body);
+  //   save in objtoUpdate
+  objectsToUpdate.push({
+    mesh,
+    body,
+  });
+};
+
 /**
  * Animate
  */
@@ -206,6 +251,7 @@ const tick = () => {
   world.step(1 / 60, deltaTime, 3);
   for (const obj of objectsToUpdate) {
     obj.mesh.position.copy(obj.body.position);
+    obj.mesh.quaternion.copy(obj.body.quaternion);
   }
   // Render
   renderer.render(scene, camera);
