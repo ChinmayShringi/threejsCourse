@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
-import CANNON from "cannon";
+import * as CANNON from "cannon-es";
 
 /**
  * Debug
@@ -24,6 +24,18 @@ debugObject.createBox = () => {
     z: (Math.random() - 0.5) * 0.2,
   });
 };
+
+debugObject.reset = () => {
+  for (const obj of objectsToUpdate) {
+    // remove body
+    obj.body.removeEventListner("collide", playHitSound);
+    world.removeBodyEvent(obj.body);
+
+    // remove mesh
+    scene.remove(obj.mesh);
+  }
+};
+
 gui.add(debugObject, "createSphere");
 gui.add(debugObject, "createBox");
 
@@ -32,6 +44,18 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
+/**
+ * Sounds
+ */
+const hitSound = new Audio("/sounds/hit.mp3");
+const playHitSound = (collision) => {
+  const impactStrength = collision.contact.getImpactVelocityAlongNormal();
+  if (impactStrength > 1.5) {
+    hitSound.volume = Math.random();
+    hitSound.currentTime = 0;
+    hitSound.play();
+  }
+};
 
 /**
  * Texture
@@ -176,7 +200,7 @@ const sphereMaterial = new THREE.MeshStandardMaterial({
 const createSphere = (radius, position) => {
   // three mesh
   const mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-  //   mesh.scale.set(radius);
+  mesh.scale.set(radius, radius, radius);
   mesh.castShadow = true;
   mesh.position.copy(position);
   scene.add(mesh);
@@ -190,6 +214,7 @@ const createSphere = (radius, position) => {
     material: defaultMaterial,
   });
   body.position.copy(position);
+  body.addEventListener("collide", playHitSound);
   world.addBody(body);
   //   save in objtoUpdate
   objectsToUpdate.push({
@@ -228,6 +253,7 @@ const createBox = (width, height, depth, position) => {
     material: defaultMaterial,
   });
   body.position.copy(position);
+  body.addEventListener("collide", playHitSound);
   world.addBody(body);
   //   save in objtoUpdate
   objectsToUpdate.push({
