@@ -60,18 +60,6 @@ const playHitSound = (collision) => {
 /**
  * Texture
  */
-const textureLoader = new THREE.TextureLoader();
-const cubeTextureLoader = new THREE.CubeTextureLoader();
-
-const envMapTexture = cubeTextureLoader.load([
-  "/textures/environmentMaps/0/px.png",
-  "/textures/environmentMaps/0/nx.png",
-  "/textures/environmentMaps/0/py.png",
-  "/textures/environmentMaps/0/ny.png",
-  "/textures/environmentMaps/0/pz.png",
-  "/textures/environmentMaps/0/nz.png",
-]);
-
 /**
  * Physics
  */
@@ -113,7 +101,6 @@ const floor = new THREE.Mesh(
     color: "#777777",
     metalness: 0.3,
     roughness: 0.4,
-    envMap: envMapTexture,
   })
 );
 floor.receiveShadow = true;
