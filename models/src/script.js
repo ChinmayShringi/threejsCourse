@@ -20,8 +20,11 @@ const scene = new THREE.Scene();
  * GLTF MODELS
  */
 const gltfLoader = new GLTFLoader();
-gltfLoader.load("/models/Duck/glTF/Duck.gltf", (gltf) => {
-  scene.add(gltf.scene.children[0]);
+gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
+  const children = [...gltf.scene.children];
+  children.forEach((el) => {
+    scene.add(el);
+  });
 });
 
 /**
@@ -94,7 +97,7 @@ scene.add(floor);
 /**
  * Light
  */
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 const directionLight = new THREE.DirectionalLight(0xffffff, 0.2);
