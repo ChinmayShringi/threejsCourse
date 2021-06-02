@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 /**
  * Base
  */
@@ -19,13 +20,12 @@ const scene = new THREE.Scene();
 /**
  * GLTF MODELS
  */
-const gltfLoader = new GLTFLoader();
-gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
-  //   const children = [...gltf.scene.children];
-  //   children.forEach((el) => {
-  //     scene.add(el);
-  //   });
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath("/draco/");
 
+const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
+gltfLoader.load("/models/Duck/glTF-Draco/Duck.gltf", (gltf) => {
   scene.add(gltf.scene);
 });
 
