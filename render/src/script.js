@@ -7,9 +7,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 /**
  * Base
  */
-const parameters = {
-  color: 0xff0000,
-};
+const gui = new dat.GUI();
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -22,14 +20,21 @@ const scene = new THREE.Scene();
  */
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
-let mixer = null;
 
 const gltfLoader = new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
 
-gltfLoader.load("/models/Burger.glb", (gltf) => {
-  gltf.scene.scale.set(0.025, 0.025, 0.025);
+gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
+  gltf.scene.scale.set(10, 10, 10);
+  gltf.scene.position.set(0, -4, 0);
+  gltf.scene.rotation.y = Math.PI * 0.5;
   scene.add(gltf.scene);
+  gui
+    .add(gltf.scene.rotation, "y")
+    .min(-Math.PI)
+    .max(Math.PI)
+    .step(0.001)
+    .name("rotation");
 });
 
 /**
@@ -79,43 +84,28 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-/**
- * Floor
- */
-const floor = new THREE.Mesh(
-  new THREE.PlaneBufferGeometry(10, 10),
-  new THREE.MeshStandardMaterial({
-    color: "#777777",
-    metalness: 0.3,
-    roughness: 0.4,
-  })
-);
-floor.receiveShadow = true;
-floor.rotation.x = -Math.PI * 0.5;
-scene.add(floor);
-
-/**
- * Debug
- */
+renderer.physicallyCorrectLights = true;
 
 /**
  * Light
  */
-const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-scene.add(ambientLight);
 
-const directionLight = new THREE.DirectionalLight(0xffffff, 0.2);
-directionLight.castShadow = true;
-directionLight.shadow.mapSize.set(1024, 1024);
-directionLight.shadow.camera.far = 15;
-directionLight.shadow.camera.left = -7;
-directionLight.shadow.camera.top = 7;
-directionLight.shadow.camera.right = 7;
-directionLight.shadow.camera.bottom = -7;
-directionLight.position.set(5, 5, 5);
+const directionLight = new THREE.DirectionalLight(0xffffff, 3);
+directionLight.position.set(0.25, 3, -2.25);
 scene.add(directionLight);
 
+/**
+ * Debug
+ */
+gui
+  .add(directionLight, "intensity")
+  .min(0)
+  .max(10)
+  .step(0.001)
+  .name("lightIntensity");
+gui.add(directionLight.position, "x").min(-5).max(5).step(0.001).name("lightX");
+gui.add(directionLight.position, "y").min(-5).max(5).step(0.001).name("lightY");
+gui.add(directionLight.position, "z").min(-5).max(5).step(0.001).name("lightZ");
 /**
  * Animate
  */
