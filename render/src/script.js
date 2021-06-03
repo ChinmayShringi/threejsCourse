@@ -48,7 +48,7 @@ const envMap = cubeTextureLoader.load([
   "/textures/environmentMaps/0/pz.jpg",
   "/textures/environmentMaps/0/nz.jpg",
 ]);
-
+envMap.encoding = THREE.sRGBEncoding;
 scene.background = envMap;
 scene.environment = envMap;
 debugObject.envMapIntensity = 5;
@@ -124,6 +124,18 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;
 renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+gui
+  .add(renderer, "toneMapping", {
+    No: THREE.NoToneMapping,
+    Linear: THREE.LinearToneMapping,
+    Reunhard: THREE.ReinhardToneMapping,
+    Cinenon: THREE.CineonToneMapping,
+    ACESFilmic: THREE.ACESFilmicToneMapping,
+  })
+  .onFinishChange(() => {
+    renderer.toneMapping = Number(renderer.toneMapping);
+  });
 
 /**
  * Light
