@@ -64,9 +64,10 @@ gui
 
 // load Model
 gltfLoader.setDRACOLoader(dracoLoader);
-gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
-  gltf.scene.scale.set(10, 10, 10);
-  gltf.scene.position.set(0, -4, 0);
+// gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf",
+gltfLoader.load("/models/hamburger.glb", (gltf) => {
+  gltf.scene.scale.set(0.3, 0.3, 0.3);
+  gltf.scene.position.set(0, 0, 0);
   gltf.scene.rotation.y = Math.PI * 0.5;
   scene.add(gltf.scene);
   gui
@@ -156,6 +157,7 @@ directionLight.position.set(0.25, 3, -2.25);
 directionLight.castShadow = true;
 directionLight.shadow.camera.far = 15;
 directionLight.shadow.mapSize.set(1024, 1024);
+directionLight.shadow.normalBias = 0.05;
 scene.add(directionLight);
 
 // const directionalLightCameraHelper = new THREE.CameraHelper(
