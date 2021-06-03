@@ -8,12 +8,27 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
  * Base
  */
 const gui = new dat.GUI();
-
+const debugObject = {};
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
+
+/**
+ * Update all Materials
+ */
+const updateAllMaterials = () => {
+  scene.traverse((child) => {
+    if (
+      child instanceof THREE.Mesh &&
+      child.material instanceof THREE.MeshStandardMaterial
+    ) {
+      child.material.envMap = envMap;
+      child.material.envMapIntensity = debugObject.envMapIntensity;
+    }
+  });
+};
 
 /**
  * GLTF MODELS
@@ -22,8 +37,29 @@ const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
 
 const gltfLoader = new GLTFLoader();
-gltfLoader.setDRACOLoader(dracoLoader);
+const cubeTextureLoader = new THREE.CubeTextureLoader();
 
+// load env
+const envMap = cubeTextureLoader.load([
+  "/textures/environmentMaps/0/px.jpg",
+  "/textures/environmentMaps/0/nx.jpg",
+  "/textures/environmentMaps/0/py.jpg",
+  "/textures/environmentMaps/0/ny.jpg",
+  "/textures/environmentMaps/0/pz.jpg",
+  "/textures/environmentMaps/0/nz.jpg",
+]);
+
+scene.background = envMap;
+debugObject.envMapIntensity = 5;
+gui
+  .add(debugObject, "envMapIntensity")
+  .min(0)
+  .max(10)
+  .step(0.001)
+  .onChange(updateAllMaterials);
+
+// load Model
+gltfLoader.setDRACOLoader(dracoLoader);
 gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
   gltf.scene.scale.set(10, 10, 10);
   gltf.scene.position.set(0, -4, 0);
@@ -35,6 +71,7 @@ gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
     .max(Math.PI)
     .step(0.001)
     .name("rotation");
+  updateAllMaterials();
 });
 
 /**
