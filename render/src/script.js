@@ -24,7 +24,7 @@ const updateAllMaterials = () => {
       child instanceof THREE.Mesh &&
       child.material instanceof THREE.MeshStandardMaterial
     ) {
-      child.material.envMap = envMap;
+      // child.material.envMap = envMap;
       child.material.envMapIntensity = debugObject.envMapIntensity;
     }
   });
@@ -50,6 +50,7 @@ const envMap = cubeTextureLoader.load([
 ]);
 
 scene.background = envMap;
+scene.environment = envMap;
 debugObject.envMapIntensity = 5;
 gui
   .add(debugObject, "envMapIntensity")
@@ -122,6 +123,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
 
 /**
  * Light
