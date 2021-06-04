@@ -21,31 +21,12 @@ const flagTexture = textureLoader.load("/textures/flag-french.jpg");
  * Object
  */
 const geometry = new THREE.PlaneBufferGeometry(1, 1, 32, 32);
-// const count = geometry.attributes.position.count;
-// const randoms = new Float32Array(count);
-// for (let i = 0; i < count; i++) {
-//   randoms[i] = Math.random();
-// }
-// geometry.setAttribute("aRandom", new THREE.BufferAttribute(randoms, 1));
 
 const material = new THREE.ShaderMaterial({
   vertexShader: testVertexShader,
   fragmentShader: testFragmentShader,
+  side: THREE.DoubleSide,
   transparent: true,
-  uniforms: {
-    uFrequency: {
-      value: new THREE.Vector2(10, 5),
-    },
-    uTime: {
-      value: 0,
-    },
-    uColor: {
-      value: new THREE.Color("orange"),
-    },
-    uTexture: {
-      value: flagTexture,
-    },
-  },
 });
 const mesh = new THREE.Mesh(geometry, material);
 mesh.scale.y = 2 / 3;
@@ -112,8 +93,6 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  // Update Materials
-  material.uniforms.uTime.value = elapsedTime;
   // Update controls
   controls.update();
 
