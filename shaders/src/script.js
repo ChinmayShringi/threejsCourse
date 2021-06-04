@@ -21,11 +21,11 @@ const flagTexture = textureLoader.load("/textures/flag-french.jpg");
  * Object
  */
 const geometry = new THREE.PlaneBufferGeometry(1, 1, 32, 32);
-const count = geometry.attributes.position.count;
-const randoms = new Float32Array(count);
-for (let i = 0; i < count; i++) {
-  randoms[i] = Math.random();
-}
+// const count = geometry.attributes.position.count;
+// const randoms = new Float32Array(count);
+// for (let i = 0; i < count; i++) {
+//   randoms[i] = Math.random();
+// }
 // geometry.setAttribute("aRandom", new THREE.BufferAttribute(randoms, 1));
 
 const material = new THREE.ShaderMaterial({
@@ -83,7 +83,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, -2, 10);
+camera.position.set(0, -2, 1);
 scene.add(camera);
 
 // Controls
