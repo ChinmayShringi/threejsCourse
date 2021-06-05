@@ -29,7 +29,7 @@ const material = new THREE.ShaderMaterial({
   transparent: true,
 });
 const mesh = new THREE.Mesh(geometry, material);
-mesh.scale.y = 2 / 3;
+// mesh.scale.y = 2 / 3;
 scene.add(mesh);
 
 /**
