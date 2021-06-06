@@ -3,8 +3,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
-import testVertexShader from "./shaders/test/vertex.glsl";
-import testFragmentShader from "./shaders/test/fragment.glsl";
+import waterVertexShader from "./shaders/water/vertex.glsl";
+import waterFragmentShader from "./shaders/water/fragment.glsl";
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -18,19 +18,31 @@ const textureLoader = new THREE.TextureLoader();
 const flagTexture = textureLoader.load("/textures/flag-french.jpg");
 
 /**
- * Object
+ * WATER
  */
-const geometry = new THREE.PlaneBufferGeometry(1, 1, 32, 32);
+const waterGoemetry = new THREE.PlaneBufferGeometry(2, 2, 128, 128);
 
-const material = new THREE.ShaderMaterial({
-  vertexShader: testVertexShader,
-  fragmentShader: testFragmentShader,
+const waterMaterial = new THREE.ShaderMaterial({
+  vertexShader: waterVertexShader,
+  fragmentShader: waterFragmentShader,
   side: THREE.DoubleSide,
-  transparent: true,
+  uniforms: {
+    uTime: {
+      value: 0,
+    },
+    uBigWavesElevation: {
+      value: 0.2,
+    },
+    uBigWavesFrequency: {
+      value: new THREE.Vector2(4, 1.5),
+    },
+  },
+  // wireframe: true,
+  // transparent: true,
 });
-const mesh = new THREE.Mesh(geometry, material);
-// mesh.scale.y = 2 / 3;
-scene.add(mesh);
+const Water = new THREE.Mesh(waterGoemetry, waterMaterial);
+Water.rotation.x = -Math.PI * 0.5;
+scene.add(Water);
 
 /**
  * Sizes
@@ -83,8 +95,27 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 /**
  * Debug
  */
-const gui = new dat.GUI({});
-// gui.hide()
+const gui = new dat.GUI({
+  width: 340,
+});
+gui
+  .add(waterMaterial.uniforms.uBigWavesElevation, "value")
+  .min(0)
+  .max(1)
+  .step(0.001)
+  .name("uBigWavesElevation");
+gui
+  .add(waterMaterial.uniforms.uBigWavesFrequency.value, "x")
+  .min(0)
+  .max(10)
+  .step(0.001)
+  .name("uBigWavesElevationX");
+gui
+  .add(waterMaterial.uniforms.uBigWavesFrequency.value, "y")
+  .min(0)
+  .max(10)
+  .step(0.001)
+  .name("uBigWavesElevationY");
 
 /**
  * Animate
@@ -96,6 +127,8 @@ const tick = () => {
   // Update controls
   controls.update();
 
+  // update water
+  waterMaterial.uniforms.uTime.value = elapsedTime;
   // Render
   renderer.render(scene, camera);
 
