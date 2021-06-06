@@ -174,7 +174,7 @@ gui
   .add(waterMaterial.uniforms.uSmallIterations, "value")
   .min(0)
   .max(5)
-  .step(0.001)
+  .step(1.0)
   .name("uSmallIterations");
 gui
   .add(waterMaterial.uniforms.uSmallWavesSpeed, "value")
