@@ -61,11 +61,19 @@ const material = new THREE.MeshStandardMaterial({
   map: mapTexture,
   normalMap: normalTexture,
 });
+
+const customUniforms = {
+  uTime: {
+    value: 0,
+  },
+};
 material.onBeforeCompile = (shader) => {
+  shader.uniforms.uTime = customUniforms.uTime;
   shader.vertexShader = shader.vertexShader.replace(
     "#include <common>",
     `
       #include <common>
+      uniform float uTime;
 
       mat2 get2dRotateMatrix(float _angle){
         return mat2(cos(_angle),-sin(_angle),sin(_angle),cos(_angle));
@@ -78,9 +86,9 @@ material.onBeforeCompile = (shader) => {
     `
       #include <begin_vertex>
 
-      float angle=0.3;
+      float angle=(position.y+uTime)*0.9;
       mat2 rotateMatrix=get2dRotateMatrix(angle);
-      transformed.xz=rotateMatrix*transformed.xz
+      transformed.xz=rotateMatrix*transformed.xz;
     
     `
   );
@@ -97,10 +105,9 @@ gui
 gltfLoader.load("/models/LeePerrySmith/LeePerrySmith.glb", (gltf) => {
   const mesh = gltf.scene.children[0];
   // mesh=new THREE.Mesh(,material);
-  gltf.scene.scale.set(0.3, 0.3, 0.3);
-  gltf.scene.position.set(0, 0, 0);
-  gltf.scene.rotation.y = Math.PI * 0.5;
-  scene.add(gltf.scene);
+  mesh.rotation.y = Math.PI * 0.5;
+  mesh.material = material;
+  scene.add(mesh);
   gui
     .add(gltf.scene.rotation, "y")
     .min(-Math.PI)
@@ -160,8 +167,8 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;
 renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ReinhardToneMapping;
-renderer.toneMappingExposure = 3;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 
@@ -212,11 +219,11 @@ gui.add(directionLight.position, "z").min(-5).max(5).step(0.001).name("lightZ");
  * Animate
  */
 const clock = new THREE.Clock();
-let oldTime = 0;
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  const deltaTime = elapsedTime - oldTime;
-  oldTime = elapsedTime;
+
+  // Update Animation
+  customUniforms.uTime.value = elapsedTime;
 
   // Update controls
   controls.update();
