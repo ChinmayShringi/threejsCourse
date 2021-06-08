@@ -62,12 +62,50 @@ const material = new THREE.MeshStandardMaterial({
   normalMap: normalTexture,
 });
 
+const depthMaterial = new THREE.MeshDepthMaterial({
+  depthPacking: THREE.RGBADepthPacking,
+});
+
 const customUniforms = {
   uTime: {
     value: 0,
   },
 };
+// For Material
 material.onBeforeCompile = (shader) => {
+  shader.uniforms.uTime = customUniforms.uTime;
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <common>",
+    `
+      #include <common>
+      uniform float uTime;
+
+      mat2 get2dRotateMatrix(float _angle){
+        return mat2(cos(_angle),-sin(_angle),sin(_angle),cos(_angle));
+      }
+    
+    `
+  );
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <beginnormal_vertex>",
+    `
+    #include <beginnormal_vertex>
+    float angle=(position.y+uTime)*0.9;
+    mat2 rotateMatrix=get2dRotateMatrix(angle);
+    objectNormal.xz=rotateMatrix*objectNormal.xz;
+
+    `
+  );
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <begin_vertex>",
+    `
+      #include <begin_vertex>
+      transformed.xz=rotateMatrix*transformed.xz;
+    
+    `
+  );
+};
+depthMaterial.onBeforeCompile = (shader) => {
   shader.uniforms.uTime = customUniforms.uTime;
   shader.vertexShader = shader.vertexShader.replace(
     "#include <common>",
@@ -93,6 +131,7 @@ material.onBeforeCompile = (shader) => {
     `
   );
 };
+
 gui
   .add(debugObject, "envMapIntensity")
   .min(0)
@@ -107,6 +146,7 @@ gltfLoader.load("/models/LeePerrySmith/LeePerrySmith.glb", (gltf) => {
   // mesh=new THREE.Mesh(,material);
   mesh.rotation.y = Math.PI * 0.5;
   mesh.material = material;
+  mesh.customDepthMaterial = depthMaterial;
   scene.add(mesh);
   gui
     .add(gltf.scene.rotation, "y")
