@@ -64,9 +64,8 @@ gui
 
 // load Model
 gltfLoader.setDRACOLoader(dracoLoader);
-// gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf",
-gltfLoader.load("/models/hamburger.glb", (gltf) => {
-  gltf.scene.scale.set(0.3, 0.3, 0.3);
+gltfLoader.load("/models/DamagedHelmet/glTF/DamagedHelmet.gltf", (gltf) => {
+  gltf.scene.scale.set(3, 3, 3);
   gltf.scene.position.set(0, 0, 0);
   gltf.scene.rotation.y = Math.PI * 0.5;
   scene.add(gltf.scene);
@@ -129,7 +128,7 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;
 renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 3;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
