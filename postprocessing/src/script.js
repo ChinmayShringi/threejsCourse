@@ -1,9 +1,13 @@
 import "./style.css";
 import * as THREE from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass";
+
 /**
  * Base
  */
@@ -133,6 +137,16 @@ renderer.toneMappingExposure = 3;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 
+/**
+ * Post Processing
+ */
+const effectComposer = new EffectComposer(renderer);
+effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+effectComposer.setSize(sizes.width, sizes.height);
+
+const renderePass = new RenderPass(scene, camera);
+effectComposer.addPass(renderePass);
+
 gui
   .add(renderer, "toneMapping", {
     No: THREE.NoToneMapping,
@@ -176,6 +190,9 @@ gui
 gui.add(directionLight.position, "x").min(-5).max(5).step(0.001).name("lightX");
 gui.add(directionLight.position, "y").min(-5).max(5).step(0.001).name("lightY");
 gui.add(directionLight.position, "z").min(-5).max(5).step(0.001).name("lightZ");
+
+const dotscreenPass = new DotScreenPass();
+effectComposer.addPass(dotscreenPass);
 /**
  * Animate
  */
@@ -189,7 +206,10 @@ const tick = () => {
   // Update controls
   controls.update();
   // Render
-  renderer.render(scene, camera);
+  // renderer.render(scene, camera);
+
+  // rendere effect composer
+  effectComposer.render();
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
