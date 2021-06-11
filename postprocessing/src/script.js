@@ -7,6 +7,9 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass";
+import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 /**
  * Base
@@ -191,8 +194,22 @@ gui.add(directionLight.position, "x").min(-5).max(5).step(0.001).name("lightX");
 gui.add(directionLight.position, "y").min(-5).max(5).step(0.001).name("lightY");
 gui.add(directionLight.position, "z").min(-5).max(5).step(0.001).name("lightZ");
 
+/**
+ * Post Processing
+ */
+
 const dotscreenPass = new DotScreenPass();
+dotscreenPass.enabled = false;
 effectComposer.addPass(dotscreenPass);
+
+const glitchPass = new GlitchPass();
+glitchPass.goWild = true;
+glitchPass.enabled = false;
+effectComposer.addPass(glitchPass);
+
+const rgbShiftPass = new ShaderPass(RGBShiftShader);
+effectComposer.addPass(rgbShiftPass);
+
 /**
  * Animate
  */
