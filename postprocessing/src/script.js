@@ -139,16 +139,40 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 3;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
+/**
+ * RenderTarget
+ */
+const renderTarget = new THREE.WebGLRenderTarget(800, 600, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+  format: THREE.RGBAFormat,
+  encoding: THREE.sRGBEncoding,
+});
 
 /**
  * Post Processing
  */
-const effectComposer = new EffectComposer(renderer);
+const effectComposer = new EffectComposer(renderer, renderTarget);
 effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 effectComposer.setSize(sizes.width, sizes.height);
 
 const renderePass = new RenderPass(scene, camera);
 effectComposer.addPass(renderePass);
+/**
+ * Pass
+ */
+
+const dotscreenPass = new DotScreenPass();
+dotscreenPass.enabled = false;
+effectComposer.addPass(dotscreenPass);
+
+const glitchPass = new GlitchPass();
+glitchPass.goWild = true;
+glitchPass.enabled = false;
+effectComposer.addPass(glitchPass);
+
+const rgbShiftPass = new ShaderPass(RGBShiftShader);
+effectComposer.addPass(rgbShiftPass);
 
 gui
   .add(renderer, "toneMapping", {
@@ -193,22 +217,6 @@ gui
 gui.add(directionLight.position, "x").min(-5).max(5).step(0.001).name("lightX");
 gui.add(directionLight.position, "y").min(-5).max(5).step(0.001).name("lightY");
 gui.add(directionLight.position, "z").min(-5).max(5).step(0.001).name("lightZ");
-
-/**
- * Post Processing
- */
-
-const dotscreenPass = new DotScreenPass();
-dotscreenPass.enabled = false;
-effectComposer.addPass(dotscreenPass);
-
-const glitchPass = new GlitchPass();
-glitchPass.goWild = true;
-glitchPass.enabled = false;
-effectComposer.addPass(glitchPass);
-
-const rgbShiftPass = new ShaderPass(RGBShiftShader);
-effectComposer.addPass(rgbShiftPass);
 
 /**
  * Animate
