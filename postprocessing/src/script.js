@@ -9,6 +9,8 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader";
 
 /**
@@ -142,7 +144,14 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 /**
  * RenderTarget
  */
-const renderTarget = new THREE.WebGLRenderTarget(800, 600, {
+let RenderTargetClass = null;
+if (renderer.getPixelRatio() == 1 && renderer.capabilities.isWebGL2) {
+  RenderTargetClass = THREE.WebGLMultipleRenderTargets;
+} else {
+  RenderTargetClass = THREE.WebGLRenderTarget;
+}
+
+const renderTarget = new RenderTargetClass(800, 600, {
   minFilter: THREE.LinearFilter,
   magFilter: THREE.LinearFilter,
   format: THREE.RGBAFormat,
@@ -172,7 +181,112 @@ glitchPass.enabled = false;
 effectComposer.addPass(glitchPass);
 
 const rgbShiftPass = new ShaderPass(RGBShiftShader);
+rgbShiftPass.enabled = false;
 effectComposer.addPass(rgbShiftPass);
+
+const unrealBloomPass = new UnrealBloomPass();
+unrealBloomPass.enabled = false;
+unrealBloomPass.strength = 0.3;
+unrealBloomPass.radius = 1;
+unrealBloomPass.threshold = 0.6;
+effectComposer.addPass(unrealBloomPass);
+
+// Custom Pass
+const TintShader = {
+  uniforms: {
+    tDiffuse: {
+      value: null,
+    },
+    uTint: {
+      value: null,
+    },
+  },
+  vertexShader: `
+  varying vec2 vUv;
+  void main() {
+    gl_Position = projectionMatrix*modelViewMatrix* vec4(position,1.0);
+    vUv=uv;
+  }
+  `,
+  fragmentShader: `
+  uniform sampler2D tDiffuse;
+  varying vec2 vUv;
+  uniform vec3 uTint;
+  void main() {
+    vec4 color = texture2D(tDiffuse,vUv);
+    color.rgb += uTint;
+    gl_FragColor=color ;
+  }`,
+};
+const tintPass = new ShaderPass(TintShader);
+tintPass.material.uniforms.uTint.value = new THREE.Vector3(0, 0, 0);
+tintPass.enabled = false;
+effectComposer.addPass(tintPass);
+
+gui
+  .add(tintPass.material.uniforms.uTint.value, "x")
+  .min(-1)
+  .max(1)
+  .step(0.001)
+  .name("red");
+gui
+  .add(tintPass.material.uniforms.uTint.value, "y")
+  .min(-1)
+  .max(1)
+  .step(0.001)
+  .name("blue");
+gui
+  .add(tintPass.material.uniforms.uTint.value, "z")
+  .min(-1)
+  .max(1)
+  .step(0.001)
+  .name("green");
+
+// Custom Pass
+const DisplacementShader = {
+  uniforms: {
+    tDiffuse: {
+      value: null,
+    },
+    uTime: {
+      value: null,
+    },
+  },
+  vertexShader: `
+  varying vec2 vUv;
+  void main() {
+    gl_Position = projectionMatrix*modelViewMatrix* vec4(position,1.0);
+    vUv=uv;
+  }
+  `,
+  fragmentShader: `
+  uniform sampler2D tDiffuse;
+  uniform float uTime;
+  varying vec2 vUv;
+  void main() {
+    vec2 newvUv = vec2(
+      vUv.x,
+      vUv.y + sin(vUv.x *10.0 +uTime)*0.1
+    );
+    vec4 color = texture2D(tDiffuse,newvUv);
+    gl_FragColor=color ;
+  }`,
+};
+const displacementPass = new ShaderPass(DisplacementShader);
+displacementPass.material.uniforms.uTime.value = 0;
+effectComposer.addPass(displacementPass);
+
+// SMAA PASS
+if (renderer.getPixelRatio() == 1 && !renderer.capabilities.isWebGL2) {
+  // bad performance for anti aliasing
+  const smaaPass = new SMAAPass();
+  effectComposer.addPass(smaaPass);
+}
+
+gui.add(unrealBloomPass, "enabled");
+gui.add(unrealBloomPass, "strength").min(0).max(2).step(0.001);
+gui.add(unrealBloomPass, "radius").min(0).max(2).step(0.001);
+gui.add(unrealBloomPass, "threshold").min(0).max(1).step(0.001);
 
 gui
   .add(renderer, "toneMapping", {
@@ -227,6 +341,9 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
   const deltaTime = elapsedTime - oldTime;
   oldTime = elapsedTime;
+
+  // update utime for displacement
+  displacementPass.material.uniforms.uTime.value = elapsedTime;
 
   // Update controls
   controls.update();
