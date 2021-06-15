@@ -3,6 +3,17 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
+import Stats from "stats.js";
+
+// Merge Geometry
+import { BufferGeometryUtils } from "three/examples/jsm/utils/BufferGeometryUtils";
+
+/**
+ * Stats
+ */
+const stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
 
 /**
  * Base
@@ -141,6 +152,9 @@ const clock = new THREE.Clock();
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
+  // Stats Fps counter
+  stats.begin();
+
   //   Torus Rotate
   torusKnot.rotation.y = elapsedTime * 0.1;
 
@@ -152,6 +166,9 @@ const tick = () => {
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
+
+  // Stats end
+  stats.end();
 };
 
 tick();
@@ -176,3 +193,36 @@ tick();
 // const camerahelper = new THREE.CameraHelper(
 //   directionalLight / directionalLight.shadow.camera
 // );
+
+// tip 18 dont create seperate geometry for each diffrent cubes
+const geometry = new THREE.BoxBufferGeometry(0.5, 0.5, 0.5);
+
+for (let i = 0; i < 50; i++) {
+  const material = new THREE.MeshNormalMaterial();
+
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.x = (Math.random() - 0.5) * 10;
+  mesh.position.y = (Math.random() - 0.5) * 10;
+  mesh.position.z = (Math.random() - 0.5) * 10;
+  mesh.rotation.x = (Math.random() - 0.5) * Math.PI * 2;
+  mesh.rotation.y = (Math.random() - 0.5) * Math.PI * 2;
+  scene.add(mesh);
+}
+// using utils
+const geometries = [];
+
+for (let i = 0; i < 50; i++) {
+  const geometry = new THREE.BoxBufferGeometry(0.5, 0.5, 0.5);
+  geometry.translate(
+    (Math.random() - 0.5) * 10,
+    (Math.random() - 0.5) * 10,
+    (Math.random() - 0.5) * 10
+  );
+  geometry.rotateX((Math.random() - 0.5) * Math.PI * 2);
+  geometry.rotateY((Math.random() - 0.5) * Math.PI * 2);
+  geometries.push(geometry);
+}
+const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
+const material = new THREE.MeshNormalMaterial();
+const mesh = new THREE.Mesh(mergedGeometry, material);
+scene.add(mesh);
