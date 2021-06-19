@@ -5,6 +5,7 @@ import * as dat from "dat.gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { gsap } from "gsap";
+import { Raycaster } from "three";
 /**
  * Base
  */
@@ -15,7 +16,7 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
-
+let sceneReady = false;
 /**
  * Update all Materials
  */
@@ -51,6 +52,9 @@ const loadingManager = new THREE.LoadingManager(
       loadingBarElement.classList.add("ended");
       loadingBarElement.style.transform = ``;
     });
+    window.setTimeout(() => {
+      sceneReady = true;
+    }, 2000);
     // window.setTimeout(() => {
     //   // loaded
     //   gsap.to(overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0 });
@@ -89,9 +93,9 @@ gui
 
 // load Model
 gltfLoader.setDRACOLoader(dracoLoader);
-gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
+gltfLoader.load("/models/DamagedHelmet/glTF/DamagedHelmet.gltf", (gltf) => {
   // gltfLoader.load("/models/hamburger.glb", (gltf) => {
-  gltf.scene.scale.set(5, 5, 5);
+  gltf.scene.scale.set(2, 2, 2);
   gltf.scene.position.set(0, 0, 0);
   gltf.scene.rotation.y = Math.PI * 0.5;
   scene.add(gltf.scene);
@@ -112,7 +116,16 @@ const points = [
     position: new THREE.Vector3(1.55, 0.3, -0.6),
     element: document.querySelector(".point-0"),
   },
+  {
+    position: new THREE.Vector3(0.5, 0.8, -1.6),
+    element: document.querySelector(".point-1"),
+  },
+  {
+    position: new THREE.Vector3(1.6, -1.3, -0.7),
+    element: document.querySelector(".point-2"),
+  },
 ];
+const raycaster = new Raycaster();
 
 /**
  * Sizes
@@ -244,18 +257,35 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
   const deltaTime = elapsedTime - oldTime;
   oldTime = elapsedTime;
+  if (sceneReady) {
+    // Clone points
+    for (const point of points) {
+      const screenPosition = point.position.clone();
+      screenPosition.project(camera);
 
-  // Clone points
-  for (const point of points) {
-    const screenPosition = point.position.clone();
-    screenPosition.project(camera);
+      raycaster.setFromCamera(screenPosition, camera);
+      const intersects = raycaster.intersectObjects(scene.children, true);
 
-    const translateX = screenPosition.x * sizes.width * 0.5;
-    const translateY = -screenPosition.y * sizes.height * 0.5;
-    point.element.style.transform = `translate(${translateX}px ,${translateY}px)`;
+      if (intersects.length === 0) {
+        point.element.classList.add("visible");
+      } else {
+        const intersectionDistance = intersects[0].distance;
+        const pointDistance = point.position.distanceTo(camera.position);
+        if (intersectionDistance < pointDistance) {
+          point.element.classList.remove("visible");
+        } else {
+          point.element.classList.add("visible");
+        }
+      }
+
+      const translateX = screenPosition.x * sizes.width * 0.5;
+      const translateY = -screenPosition.y * sizes.height * 0.5;
+      point.element.style.transform = `translate(${translateX}px ,${translateY}px)`;
+    }
   }
   // Update controls
   controls.update();
+
   // Render
   renderer.render(scene, camera);
 
