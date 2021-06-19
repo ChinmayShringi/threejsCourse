@@ -104,6 +104,16 @@ gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
   updateAllMaterials();
 });
 
+/**Points
+ *
+ */
+const points = [
+  {
+    position: new THREE.Vector3(1.55, 0.3, -0.6),
+    element: document.querySelector(".point-0"),
+  },
+];
+
 /**
  * Sizes
  */
@@ -235,6 +245,15 @@ const tick = () => {
   const deltaTime = elapsedTime - oldTime;
   oldTime = elapsedTime;
 
+  // Clone points
+  for (const point of points) {
+    const screenPosition = point.position.clone();
+    screenPosition.project(camera);
+
+    const translateX = screenPosition.x * sizes.width * 0.5;
+    const translateY = -screenPosition.y * sizes.height * 0.5;
+    point.element.style.transform = `translate(${translateX}px ,${translateY}px)`;
+  }
   // Update controls
   controls.update();
   // Render
