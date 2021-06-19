@@ -4,6 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { gsap } from "gsap";
 /**
  * Base
  */
@@ -38,9 +39,33 @@ const updateAllMaterials = () => {
  */
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
+var loadingBarElement = document.querySelector(".loading-bar");
 
-const gltfLoader = new GLTFLoader();
-const cubeTextureLoader = new THREE.CubeTextureLoader();
+/**Loaders
+ *
+ */
+const loadingManager = new THREE.LoadingManager(
+  () => {
+    gsap.delayedCall(0.5, () => {
+      gsap.to(overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0 });
+      loadingBarElement.classList.add("ended");
+      loadingBarElement.style.transform = ``;
+    });
+    // window.setTimeout(() => {
+    //   // loaded
+    //   gsap.to(overlayMaterial.uniforms.uAlpha, { duration: 3, value: 0 });
+    //   loadingBarElement.classList.add("ended");
+    //   loadingBarElement.style.transform = ``;
+    // }, 500);
+  },
+  (itemUrl, itemLoaded, itemsTotal) => {
+    // assets Loaded progress
+    const progressRatio = itemLoaded / itemsTotal;
+    loadingBarElement.style.transform = `scaleX(${progressRatio})`;
+  }
+);
+const gltfLoader = new GLTFLoader(loadingManager);
+const cubeTextureLoader = new THREE.CubeTextureLoader(loadingManager);
 
 // load env
 const envMap = cubeTextureLoader.load([
@@ -106,14 +131,18 @@ window.addEventListener("resize", () => {
  */
 const overlatGeometry = new THREE.PlaneBufferGeometry(2, 2, 1, 1);
 const overlayMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uAlpha: { value: 1 },
+  },
   transparent: true,
   vertexShader: `
   void main(){
     gl_Position = vec4(position,1.0);
   }`,
   fragmentShader: `
+  uniform float uAlpha;
   void main() {
-    gl_FragColor =vec4(0.0,0.0,0.0,1.0);
+    gl_FragColor =vec4(0.0,0.0,0.0,uAlpha);
   }
   `,
 });
